@@ -58,8 +58,8 @@ services:
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-api.claimflowx.com,claimflowx.com,www.claimflowx.com}
       - STELLAR_NETWORK=${STELLAR_NETWORK:-TESTNET}
       - SOROBAN_RPC_URL=${SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
-      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CCLAIMFLOWCONTRACTTESTNET0000000000000000000000}
-      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-True}
+      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH}
+      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-False}
     depends_on:
       db:
         condition: service_healthy
@@ -99,8 +99,8 @@ services:
       - RUN_MIGRATIONS=false
       - STELLAR_NETWORK=${STELLAR_NETWORK:-TESTNET}
       - SOROBAN_RPC_URL=${SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
-      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CCLAIMFLOWCONTRACTTESTNET0000000000000000000000}
-      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-True}
+      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH}
+      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-False}
     depends_on:
       db:
         condition: service_healthy
@@ -159,8 +159,8 @@ services:
       - RUN_MIGRATIONS=false
       - STELLAR_NETWORK=${STELLAR_NETWORK:-TESTNET}
       - SOROBAN_RPC_URL=${SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
-      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CCLAIMFLOWCONTRACTTESTNET0000000000000000000000}
-      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-True}
+      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH}
+      - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-False}
     depends_on:
       db:
         condition: service_healthy
@@ -168,30 +168,6 @@ services:
         condition: service_healthy
     networks:
       - internal
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: production
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-https://api.claimflowx.com/api/v1}
-        VITE_FRONTEND_URL: ${VITE_FRONTEND_URL:-https://claimflowx.com}
-        VITE_VPS_IP: ${VITE_VPS_IP:-173.214.172.222}
-    restart: unless-stopped
-    expose:
-      - "3000"
-    networks:
-      - internal
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=dokploy-network"
-      - "traefik.http.routers.claimflow-frontend.rule=Host(`${FRONTEND_DOMAIN:-claimflowx.com}`) || Host(`www.${FRONTEND_DOMAIN:-claimflowx.com}`)"
-      - "traefik.http.routers.claimflow-frontend.entrypoints=websecure"
-      - "traefik.http.routers.claimflow-frontend.tls=true"
-      - "traefik.http.routers.claimflow-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.claimflow-frontend.loadbalancer.server.port=3000"
 
 volumes:
   postgres_data:

@@ -47,6 +47,8 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - DEBUG=True
       - SECRET_KEY=${SECRET_KEY:-django-insecure-claimflow-super-secret-key-production-ready-2026!#$*}
@@ -59,7 +61,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - STELLAR_NETWORK=${STELLAR_NETWORK:-TESTNET}
       - SOROBAN_RPC_URL=${SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
-      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CCLAIMFLOWCONTRACTTESTNET0000000000000000000000}
+      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH}
+      - STELLAR_ADMIN_PUBLIC_KEY=${STELLAR_ADMIN_PUBLIC_KEY:-GAF7L3F5VJDN4ZE2AHNLE4LVI5HP36UOG4IBZZUXBXJIWGL66K3CIPQK}
       - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-True}
     depends_on:
       db:
@@ -78,6 +81,8 @@ services:
     command: celery -A claimflow_core worker -l info
     volumes:
       - ./backend:/app
+    env_file:
+      - .env
     environment:
       - DEBUG=True
       - SECRET_KEY=${SECRET_KEY:-django-insecure-claimflow-super-secret-key-production-ready-2026!#$*}
@@ -90,7 +95,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - STELLAR_NETWORK=${STELLAR_NETWORK:-TESTNET}
       - SOROBAN_RPC_URL=${SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
-      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CCLAIMFLOWCONTRACTTESTNET0000000000000000000000}
+      - SOROBAN_CONTRACT_ID=${SOROBAN_CONTRACT_ID:-CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH}
+      - STELLAR_ADMIN_PUBLIC_KEY=${STELLAR_ADMIN_PUBLIC_KEY:-GAF7L3F5VJDN4ZE2AHNLE4LVI5HP36UOG4IBZZUXBXJIWGL66K3CIPQK}
       - SIMULATED_BLOCKCHAIN=${SIMULATED_BLOCKCHAIN:-True}
     depends_on:
       db:

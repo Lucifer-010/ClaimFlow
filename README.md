@@ -157,6 +157,43 @@ stellar contract build
 ```
 Artifact generated: `target/wasm32v1-none/release/claimflow.wasm` (10,558 bytes optimized).
 
+### Deployed Stellar Testnet Smart Contract Details
+
+The ClaimFlow Soroban smart contract is compiled to WASM and deployed directly onto the **Stellar Testnet**.
+
+| Parameter | Value |
+| :--- | :--- |
+| **Network** | **Stellar Testnet** |
+| **Contract Address (ID)** | [`CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH`](https://stellar.expert/explorer/testnet/contract/CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH) |
+| **WASM Hash** | `44802c8dd34409ab05c5a2da1fcd0b6fe51dee18def51b2592ad9bb01f40f6e6` |
+| **Network Passphrase** | `Test SDF Network ; September 2015` |
+| **Soroban RPC Endpoint** | `https://soroban-testnet.stellar.org` |
+| **Stellar Horizon URL** | `https://horizon-testnet.stellar.org` |
+| **Admin Public Key** | [`GAF7L3F5VJDN4ZE2AHNLE4LVI5HP36UOG4IBZZUXBXJIWGL66K3CIPQK`](https://stellar.expert/explorer/testnet/account/GAF7L3F5VJDN4ZE2AHNLE4LVI5HP36UOG4IBZZUXBXJIWGL66K3CIPQK) |
+| **Reviewer Public Key** | [`GDBU7DDZQA5OMNWGTSLOH7UT6TSUEK4DAOO2FJ5LQS6DZMUCXLZ456RG`](https://stellar.expert/explorer/testnet/account/GDBU7DDZQA5OMNWGTSLOH7UT6TSUEK4DAOO2FJ5LQS6DZMUCXLZ456RG) |
+
+#### On-Chain Verification Transactions
+- **WASM Installation Tx**: [`4757b27f1c2e6e22e99412030e44079df100cc8eb0d2873068b6a34cdb82282d`](https://stellar.expert/explorer/testnet/tx/4757b27f1c2e6e22e99412030e44079df100cc8eb0d2873068b6a34cdb82282d)
+- **Contract Instance Deployment Tx**: [`14d5804a3a14d8d54782eb6e534955775da996b7fff034b829c51d723a12bb49`](https://stellar.expert/explorer/testnet/tx/14d5804a3a14d8d54782eb6e534955775da996b7fff034b829c51d723a12bb49)
+- **Contract Initialization Tx (`initialize`)**: [`b59fef56a3077a65d0107c5aa402083cd24cce54af2986815f01bc525c8077a4`](https://stellar.expert/explorer/testnet/tx/b59fef56a3077a65d0107c5aa402083cd24cce54af2986815f01bc525c8077a4)
+- **Reviewer Authorization Tx (`add_reviewer`)**: [`0ed72817a19086e061ab08abdbbe1139eb016e2509cdec028cc6cae775185d80`](https://stellar.expert/explorer/testnet/tx/0ed72817a19086e061ab08abdbbe1139eb016e2509cdec028cc6cae775185d80)
+
+#### Explorer & Interactive Tools
+- **Stellar Expert Testnet Explorer**: [View Contract CAT66FXHT...](https://stellar.expert/explorer/testnet/contract/CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH)
+- **Stellar Laboratory (Testnet)**: [Interact with Contract in Stellar Lab](https://lab.stellar.org/r/testnet/contract/CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH)
+- **Soroban CLI Inspection**:
+  ```bash
+  stellar contract inspect --id CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH --network testnet
+  ```
+- **Read Contract Admin via CLI**:
+  ```bash
+  stellar contract invoke \
+    --id CAT66FXHT4XLULGRQ7IWFXAHBUIP2ATTS3YUXPFN2ZQILAMWPRZSBUOH \
+    --network testnet \
+    --source-account GAF7L3F5VJDN4ZE2AHNLE4LVI5HP36UOG4IBZZUXBXJIWGL66K3CIPQK \
+    -- get_admin
+  ```
+
 ---
 
 ## 4. Backend REST API Reference
@@ -241,8 +278,8 @@ The platform includes a dedicated `production-compose.yml` pre-configured for se
 
 ### Domain Routing & Ingress
 - **API Domain**: `https://api.claimflowx.com`
-- **Frontend Domains**: `https://claimflowx.com`, `https://www.claimflowx.com`
 - **Allowed Hosts configured**: `api.claimflowx.com`, `claimflowx.com`, `www.claimflowx.com`, `.claimflowx.com`
+- **Traefik Ingress**: Automatically handles Let's Encrypt TLS certificates on `dokploy-network` and routes traffic to backend port `8000`.
 
 ### Production Architecture Services
 1. `db`: PostgreSQL 16 Alpine
@@ -251,7 +288,6 @@ The platform includes a dedicated `production-compose.yml` pre-configured for se
 4. `celery_worker`: Celery worker for async Soroban contract operations
 5. `celery_beat`: Celery beat for periodic transaction reconciliation
 6. `soroban_indexer`: Dedicated Soroban event listener daemon (`python manage.py run_soroban_event_listener`)
-7. `frontend`: Production frontend bundle served via Traefik
 
 ```bash
 # Deploy on Dokploy / Production
@@ -260,7 +296,36 @@ docker compose -f production-compose.yml up -d
 
 ---
 
-## 7. Local Development Setup (Without Docker)
+## 7. Django Administration Portal
+
+ClaimFlow includes a fully configured administrative interface available at `/admin/`.
+
+### Superuser Credentials
+- **Username**: `claimflow`
+- **Password**: `claimflow2025`
+- **Email**: `admin@claimflowx.com`
+- **Role**: `ADMIN` (Superuser & Staff status enabled)
+
+> Note: The production entrypoint (`backend/entrypoint.sh`) runs `python manage.py ensure_superuser` on startup, ensuring the superuser is automatically and idempotently provisioned.
+
+### Registered Models
+All core data models are registered with rich search, filtering, and inline management:
+- **`apps.authentication`**:
+  - `User`: Role-based management (`CLAIMANT`, `REVIEWER`, `ADMIN`), Stellar wallet addresses, staff/superuser privileges.
+- **`apps.policies`**:
+  - `Policy`: Insurance policies with coverage limits, deductibles, categories, and policyholders.
+- **`apps.claims`**:
+  - `Claim`: Full claim record with inline supporting documents, review decisions, payout authorizations, and timeline events.
+  - `SupportingEvidence`: Uploaded incident documentation and file metadata.
+  - `ClaimReviewDecision`: Reviewer assessments, decisions, and approval amounts.
+  - `PayoutAuthorization`: Soroban payout authorization state and transaction tracking.
+  - `ClaimTimelineEvent`: Immutable chronological audit logs for every state transition.
+- **`apps.blockchain`**:
+  - `TransactionRecord`: On-chain transaction logs with transaction hashes, status, ledger sequences, and direct block explorer URLs.
+
+---
+
+## 8. Local Development Setup (Without Docker)
 
 ### 1. Python Virtual Environment
 ```bash
@@ -296,7 +361,7 @@ python manage.py runserver 0.0.0.0:8000
 
 ---
 
-## 7. Automated Testing Summary
+## 9. Automated Testing Summary
 
 | Test Suite | Location | Tests Executed | Passed | Status |
 | :--- | :--- | :---: | :---: | :---: |
@@ -309,6 +374,6 @@ python manage.py runserver 0.0.0.0:8000
 
 ---
 
-## 8. License
+## 10. License
 
 ClaimFlow is open-source software licensed under the MIT License.

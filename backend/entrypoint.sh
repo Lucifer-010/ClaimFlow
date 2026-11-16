@@ -17,6 +17,9 @@ if [ "$RUN_MIGRATIONS" != "false" ]; then
     echo "Applying database migrations..."
     python manage.py migrate --noinput
 
+    echo "Ensuring ClaimFlow superuser..."
+    python manage.py ensure_superuser || true
+
     echo "Collecting static files..."
     python manage.py collectstatic --noinput --clear || true
 else
