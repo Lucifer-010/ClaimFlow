@@ -15,9 +15,26 @@ SECRET_KEY = os.environ.get(
     'django-insecure-claimflow-super-secret-key-production-ready-2026!#$*'
 )
 
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = os.environ.get('DJANGO_DEBUG', os.environ.get('DEBUG', 'True')).lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+# Domains & Hosts configuration
+CLAIMFLOW_DOMAINS = [
+    'api.claimflowx.com',
+    'claimflowx.com',
+    'www.claimflowx.com',
+    '.claimflowx.com',
+    'localhost',
+    '127.0.0.1',
+    'web',
+]
+raw_allowed_hosts = os.environ.get('ALLOWED_HOSTS', '')
+if raw_allowed_hosts and raw_allowed_hosts != '*':
+    ALLOWED_HOSTS = [h.strip() for h in raw_allowed_hosts.split(',') if h.strip()]
+    for host in CLAIMFLOW_DOMAINS:
+        if host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(host)
+else:
+    ALLOWED_HOSTS = ['*'] if DEBUG else CLAIMFLOW_DOMAINS
 
 # Application definition
 INSTALLED_APPS = [
@@ -76,12 +93,12 @@ WSGI_APPLICATION = 'claimflow_core.wsgi.application'
 ASGI_APPLICATION = 'claimflow_core.asgi.application'
 
 # Database
-# Default to PostgreSQL, with SQLite fallback if PostgreSQL env vars are absent or for testing
-DB_NAME = os.environ.get('DB_NAME', 'claimflow_db')
-DB_USER = os.environ.get('DB_USER', 'claimflow_user')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'claimflow_password')
-DB_HOST = os.environ.get('DB_HOST', '')
-DB_PORT = os.environ.get('DB_PORT', '5432')
+# Supports both POSTGRES_* and DB_* environment variables for Dokploy / local Docker
+DB_NAME = os.environ.get('POSTGRES_DB', os.environ.get('DB_NAME', 'claimflow_db'))
+DB_USER = os.environ.get('POSTGRES_USER', os.environ.get('DB_USER', 'claimflow_user'))
+DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD', os.environ.get('DB_PASSWORD', 'claimflow_password'))
+DB_HOST = os.environ.get('POSTGRES_HOST', os.environ.get('DB_HOST', ''))
+DB_PORT = os.environ.get('POSTGRES_PORT', os.environ.get('DB_PORT', '5432'))
 
 if DB_HOST:
     DATABASES = {
@@ -128,9 +145,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS configuration
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS & CSRF configuration
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    'https://claimflowx.com',
+    'https://www.claimflowx.com',
+    'https://api.claimflowx.com',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+]
+extra_cors = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if extra_cors:
+    CORS_ALLOWED_ORIGINS.extend([origin.strip() for origin in extra_cors.split(',') if origin.strip()])
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://claimflowx.com',
+    'https://www.claimflowx.com',
+    'https://api.claimflowx.com',
+    'http://localhost:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:8000',
+]
+extra_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+if extra_csrf:
+    CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in extra_csrf.split(',') if origin.strip()])
 
 # REST Framework Configuration
 REST_FRAMEWORK = {

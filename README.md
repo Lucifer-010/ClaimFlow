@@ -235,7 +235,32 @@ Services started:
 
 ---
 
-## 6. Local Development Setup (Without Docker)
+## 6. Production Deployment with Dokploy (`production-compose.yml`)
+
+The platform includes a dedicated `production-compose.yml` pre-configured for self-hosted PaaS deployments (such as **Dokploy**) with automatic SSL/TLS via Traefik.
+
+### Domain Routing & Ingress
+- **API Domain**: `https://api.claimflowx.com`
+- **Frontend Domains**: `https://claimflowx.com`, `https://www.claimflowx.com`
+- **Allowed Hosts configured**: `api.claimflowx.com`, `claimflowx.com`, `www.claimflowx.com`, `.claimflowx.com`
+
+### Production Architecture Services
+1. `db`: PostgreSQL 16 Alpine
+2. `redis`: Redis 7 Alpine
+3. `web`: Gunicorn WSGI workers (4 workers, 120s timeout)
+4. `celery_worker`: Celery worker for async Soroban contract operations
+5. `celery_beat`: Celery beat for periodic transaction reconciliation
+6. `soroban_indexer`: Dedicated Soroban event listener daemon (`python manage.py run_soroban_event_listener`)
+7. `frontend`: Production frontend bundle served via Traefik
+
+```bash
+# Deploy on Dokploy / Production
+docker compose -f production-compose.yml up -d
+```
+
+---
+
+## 7. Local Development Setup (Without Docker)
 
 ### 1. Python Virtual Environment
 ```bash
