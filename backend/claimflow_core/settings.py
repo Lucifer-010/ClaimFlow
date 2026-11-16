@@ -173,6 +173,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    # Pin to a stable version without the import.meta bundle bug:
+    'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@2.1.5',
     'SWAGGER_UI_SETTINGS': {
         'deepLinking': True,
         'persistAuthorization': True,
